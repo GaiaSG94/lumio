@@ -1,0 +1,79 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: #f6f3ff;
+  color: #1a1033;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid #8a6bff;
+  outline-offset: 3px;
+}
+
+@layer components {
+  .surface-verre {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(91, 46, 232, 0.18);
+  }
+
+  .btn-primaire {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] bg-violet-600 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .btn-secondaire {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] border border-violet-100 bg-white px-4 py-2 font-semibold text-violet-700 transition-colors hover:bg-violet-100;
+  }
+
+  .pastille {
+    @apply inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-violet-100 bg-white px-3 text-sm font-medium text-encre-2;
+  }
+}
+
+.halo {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
