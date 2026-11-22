@@ -55,7 +55,7 @@ function TitleBlock({ scene, frame }: { scene: LumioScene; frame: number }) {
   const scale = interpolate(frame, [0, 30], [0.94, 1], { extrapolateRight: "clamp" });
   return (
     <>
-      <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: 3, color: VIOLET, textTransform: "uppercase" }}>Bienvenue</div>
+      <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: 3, color: VIOLET, textTransform: "uppercase" }}>Welcome</div>
       <h1 style={{ fontSize: 104, lineHeight: 1.03, letterSpacing: -4, margin: "22px 0 0", color: ENCRE, transform: `scale(${scale})`, transformOrigin: "left center" }}>
         {scene.title}
       </h1>
@@ -192,16 +192,19 @@ export const SceneView = ({ scene, index, total, courseTitle }: Props) => {
 
   let content;
   switch (scene.kind) {
-    case "accroche":
+    case "hook":
       content = <TitleBlock scene={scene} frame={frame} />;
       break;
-    case "schema":
+    case "explanation":
+      content = <Explanation scene={scene} />;
+      break;
+    case "diagram":
       content = <Schema scene={scene} frame={frame} />;
       break;
     case "animation":
       content = <Animation scene={scene} frame={frame} />;
       break;
-    case "synthese":
+    case "summary":
       content = <Synthesis scene={scene} frame={frame} />;
       break;
     case "quiz":

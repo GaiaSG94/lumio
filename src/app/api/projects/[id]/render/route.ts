@@ -10,9 +10,9 @@ export const maxDuration = 300;
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const project = await store.get(id);
-  if (!project) return NextResponse.json({ error: "Projet introuvable" }, { status: 404 });
+  if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
   if (!project.versions.length || !project.assets) {
-    return NextResponse.json({ error: "Le projet n'est pas encore prêt" }, { status: 409 });
+    return NextResponse.json({ error: "The project is not ready yet" }, { status: 409 });
   }
 
   const directory = assetPath(id);
@@ -33,10 +33,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   try {
     await new Promise<void>((resolve, reject) => {
       child.on("error", reject);
-      child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(log.slice(-1200) || `Rendu terminé avec le code ${code}`))));
+      child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(log.slice(-1200) || `Render exited with code ${code}`))));
     });
   } catch (error) {
-    const detail = error instanceof Error ? error.message : "Erreur de rendu";
+    const detail = error instanceof Error ? error.message : "Render error";
     return NextResponse.json({ error: detail }, { status: 500 });
   }
 

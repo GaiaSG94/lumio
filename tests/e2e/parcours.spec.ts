@@ -1,52 +1,52 @@
 import { expect, test } from "@playwright/test";
 
-test("accueil → studio → lecteur élève → quiz", async ({ page }) => {
+test("home -> studio -> student player -> quiz", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Une leçon/i })).toBeVisible();
-  await page.getByRole("button", { name: "La photosynthèse", exact: true }).click();
-  await page.getByRole("button", { name: "Générer la vidéo" }).click();
+  await expect(page.getByRole("heading", { name: /One lesson/i })).toBeVisible();
+  await page.getByRole("button", { name: "Photosynthesis", exact: true }).click();
+  await page.getByRole("button", { name: "Generate video" }).click();
 
   await expect(page).toHaveURL(/\/p\//, { timeout: 20_000 });
   await expect(page.getByTestId("version")).toContainText("Version 1", { timeout: 20_000 });
-  await expect(page.getByTestId("bande-scenes")).toContainText("Une plante");
+  await expect(page.getByTestId("scene-strip")).toContainText("A plant");
 
   await page.getByRole("button", { name: "Script" }).click();
   await expect(page.getByTestId("script-panel")).toContainText("Quiz · 3 questions");
 
-  await page.getByRole("button", { name: "Partager" }).click();
-  const share = await page.getByRole("textbox", { name: "Lien de partage" }).inputValue();
+  await page.getByRole("button", { name: "Share" }).click();
+  const share = await page.getByRole("textbox", { name: "Share link" }).inputValue();
   expect(share).toMatch(/\/v\//);
-  await page.getByRole("button", { name: "Fermer" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
 
   await page.goto(share);
   await expect(page.getByTestId("scene-stage")).toBeVisible();
-  await page.getByRole("button", { name: /Mes notes/ }).click();
-  await page.getByLabel("Nouvelle note").fill("À revoir avec la classe");
-  await page.getByRole("button", { name: "Ajouter" }).click();
-  await expect(page.getByTestId("notes")).toContainText("À revoir avec la classe");
+  await page.getByRole("button", { name: /My notes/i }).click();
+  await page.getByLabel("New note").fill("Review with the class");
+  await page.getByRole("button", { name: "Add" }).click();
+  await expect(page.getByTestId("notes")).toContainText("Review with the class");
 
-  await page.getByTestId("lien-quiz").click();
+  await page.getByTestId("quiz-link").click();
   for (let i = 0; i < 3; i++) {
     await expect(page.getByTestId("question")).toBeVisible();
-    await page.getByRole("group", { name: "Choix de réponse" }).getByRole("button").first().click();
-    await page.getByRole("button", { name: "Valider" }).click();
-    await expect(page.getByTestId("retour")).toBeVisible();
-    await page.getByRole("button", { name: "Question suivante" }).click();
+    await page.getByRole("group", { name: "Answer choices" }).getByRole("button").first().click();
+    await page.getByRole("button", { name: "Validate" }).click();
+    await expect(page.getByTestId("feedback")).toBeVisible();
+    await page.getByRole("button", { name: "Next question" }).click();
   }
-  await expect(page.getByTestId("resultat")).toContainText("Quiz terminé");
-  await page.getByRole("button", { name: "Enregistrer mon résultat" }).click();
-  await expect(page.getByRole("button", { name: "Résultat enregistré" })).toBeVisible();
+  await expect(page.getByTestId("result")).toContainText("Quiz complete!");
+  await page.getByRole("button", { name: "Save my result" }).click();
+  await expect(page.getByRole("button", { name: "Result saved" })).toBeVisible();
 });
 
-test("le chat modifie une scène et incrémente la version", async ({ page }) => {
+test("the chat modifies a scene and increments the version", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "La photosynthèse", exact: true }).click();
-  await page.getByRole("button", { name: "Générer la vidéo" }).click();
+  await page.getByRole("button", { name: "Photosynthesis", exact: true }).click();
+  await page.getByRole("button", { name: "Generate video" }).click();
   await expect(page).toHaveURL(/\/p\//, { timeout: 20_000 });
   await expect(page.getByTestId("version")).toContainText("Version 1", { timeout: 20_000 });
 
-  await page.getByLabel("Demande une modification").fill("Plus court");
-  await page.getByRole("button", { name: "Envoyer la modification" }).click();
+  await page.getByLabel("Ask for a change").fill("Shorter");
+  await page.getByRole("button", { name: "Send change" }).click();
   await expect(page.getByTestId("version")).toContainText("Version 2", { timeout: 20_000 });
-  await expect(page.getByTestId("chat-thread")).toContainText("raccourci");
+  await expect(page.getByTestId("chat-thread")).toContainText("shortened");
 });

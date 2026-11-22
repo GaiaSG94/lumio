@@ -1,8 +1,8 @@
 import type { Storyboard } from "./schema";
 
-export type ProjectStatus = "brouillon" | "generation" | "pret" | "erreur";
-export type StepName = "script" | "voix" | "visuels" | "montage" | "soustitres";
-export type StepState = "attente" | "encours" | "fait" | "erreur";
+export type ProjectStatus = "draft" | "generating" | "ready" | "error";
+export type StepName = "script" | "voice" | "visuals" | "rendering" | "subtitles";
+export type StepState = "pending" | "running" | "done" | "error";
 
 export type GenerationJob = {
   active: boolean;
@@ -22,7 +22,7 @@ export type StoryboardVersion = {
 
 export type ChatMessage = {
   id: string;
-  role: "utilisateur" | "lumio";
+  role: "user" | "lumio";
   content: string;
   createdAt: string;
   steps?: string[];
@@ -40,7 +40,7 @@ export type Assets = {
 
 export type QuizResult = {
   id: string;
-  prenom?: string;
+  firstName?: string;
   score: number;
   total: number;
   createdAt: string;
@@ -70,12 +70,12 @@ export type CreateProjectInput = {
   targetSeconds: number;
 };
 
-export const STEP_ORDER: StepName[] = ["script", "voix", "visuels", "montage", "soustitres"];
+export const STEP_ORDER: StepName[] = ["script", "voice", "visuals", "rendering", "subtitles"];
 
 export const STEP_LABELS: Record<StepName, string> = {
   script: "Script",
-  voix: "Voix off",
-  visuels: "Visuels",
-  montage: "Montage",
-  soustitres: "Sous-titres",
+  voice: "Voiceover",
+  visuals: "Visuals",
+  rendering: "Rendering",
+  subtitles: "Subtitles",
 };

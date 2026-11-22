@@ -9,19 +9,19 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const body = (await request.json()) as { prenom?: string; score: number; total: number; answers: number[] };
+  const body = (await request.json()) as { firstName?: string; score: number; total: number; answers: number[] };
   const project = await store.get(id);
-  if (!project) return NextResponse.json({ error: "Projet introuvable" }, { status: 404 });
+  if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
   const result: QuizResult = {
     id: newId("q-"),
-    prenom: body.prenom?.trim().slice(0, 60) || undefined,
+    firstName: body.firstName?.trim().slice(0, 60) || undefined,
     score: Math.max(0, Math.min(body.total, body.score)),
     total: Math.max(1, body.total),
     answers: Array.isArray(body.answers) ? body.answers : [],
     createdAt: new Date().toISOString(),
   };
   const updated = await store.saveQuizResult(id, result);
-  const target = path.join(assetPath(id), "resultats.jsonl");
+  const target = path.join(assetPath(id), "results.jsonl");
   await fs.mkdir(path.dirname(target), { recursive: true });
   await fs.appendFile(target, `${JSON.stringify(result)}\n`, "utf8");
   return NextResponse.json({ result, project: updated?.quizResults.length }, { status: 201 });

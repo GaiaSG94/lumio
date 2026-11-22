@@ -3,7 +3,7 @@ import { storyboardSchema, type Scene, type Storyboard, type StoryboardPatch } f
 import type { GenerateInput, LlmProvider, PatchInput } from "./types";
 
 const STOP_WORDS = new Set(
-  "le la les un une des de du au aux et ou mais pour dans sur avec par que qui quoi dont cette ce cette ces son sa ses leur leurs il elle ils elles nous vous je tu on ne pas plus très comme bien tout tous toute toutes est sont était étaient être a ont eu font fait faire peut peuvent doit doivent si en y d l s c qu j m t n".split(
+  "the a an and or but for in on with by that which who what whose this these those his her its their it they we you i he she not more very like well all any each both such is are was were be been being have has had do does did can could should would may might will just also than then into about over under after before when where why how".split(
     " ",
   ),
 );
@@ -52,15 +52,15 @@ function fitDurations(scenes: Scene[], target: number): Scene[] {
 }
 
 function makeQuiz(scenes: Scene[], concepts: string[]): Storyboard["quiz"] {
-  const pool = concepts.length >= 4 ? concepts : [...concepts, "noyau", "cellule", "énergie", "eau", "air"];
+  const pool = concepts.length >= 4 ? concepts : [...concepts, "nucleus", "cell", "energy", "water", "air"];
   return scenes.slice(0, 3).map((scene, index) => {
     const keyword = concepts[index] ?? pool[index] ?? concepts[0];
     const sentence = scene.narration.split(/(?<=[.!?])\s+/).find((s) => s.toLowerCase().includes(keyword)) ?? scene.narration;
     const masked = sentence.replace(new RegExp(keyword, "i"), "____");
     const distractors = pool.filter((c) => c !== keyword).slice(0, 3);
-    while (distractors.length < 3) distractors.push(`mot-${distractors.length + 1}`);
+    while (distractors.length < 3) distractors.push(`option-${distractors.length + 1}`);
     return {
-      question: `Complète la phrase : « ${masked} »`,
+      question: `Complete the sentence: "${masked}"`,
       choices: [keyword, ...distractors],
       answerIndex: 0,
       explanation: sentence,
@@ -90,7 +90,7 @@ function localGenerate(input: GenerateInput): Storyboard {
   const safeSentences = sentences.length ? sentences : [source, source, source];
   const count = Math.min(7, Math.max(3, Math.round(input.targetSeconds / 30)));
   const concepts = extractKeywords(source, 6);
-  const kinds: Scene["kind"][] = ["accroche", "explication", "schema", "animation", "explication", "synthese", "quiz"];
+  const kinds: Scene["kind"][] = ["hook", "explanation", "diagram", "animation", "explanation", "summary", "quiz"];
   const motions: Scene["motion"][] = ["appear", "draw", "zoom", "pan"];
 
   const scenes: Scene[] = Array.from({ length: count }, (_, i) => {
@@ -99,9 +99,9 @@ function localGenerate(input: GenerateInput): Storyboard {
     return {
       id: `s${i + 1}`,
       title: words.charAt(0).toUpperCase() + words.slice(1),
-      kind: i === count - 1 ? "synthese" : kinds[i % kinds.length],
+      kind: i === count - 1 ? "summary" : kinds[i % kinds.length],
       narration,
-      visual: `Illustration ${kinds[i % kinds.length]} : ${concepts.slice(0, 3).join(", ") || "idées clés"}.`,
+      visual: `${kinds[i % kinds.length]} illustration: ${concepts.slice(0, 3).join(", ") || "key ideas"}.`,
       keywords: extractKeywords(narration, 4),
       motion: motions[i % motions.length],
       seconds: 20,
@@ -112,9 +112,9 @@ function localGenerate(input: GenerateInput): Storyboard {
     title: safeSentences[0].split(/\s+/).slice(0, 10).join(" "),
     level: input.level,
     targetSeconds: input.targetSeconds,
-    concepts: concepts.length ? concepts : ["leçon"],
+    concepts: concepts.length ? concepts : ["lesson"],
     scenes: fitDurations(scenes, input.targetSeconds),
-    quiz: makeQuiz(scenes, concepts.length ? concepts : ["leçon"]),
+    quiz: makeQuiz(scenes, concepts.length ? concepts : ["lesson"]),
   });
 }
 
@@ -129,69 +129,68 @@ function localPatch({ storyboard, message }: PatchInput): StoryboardPatch {
   const original = storyboard.scenes;
   let scenes = original.map((s) => ({ ...s }));
 
-  if (/plus court|raccour|plus succinct|shorter/.test(m)) {
+  if (/shorter|shorten|brief|concise/.test(m)) {
     scenes = scenes.map((s) => ({ ...s, narration: shorten(s.narration), seconds: Math.max(8, Math.round(s.seconds * 0.75)) }));
-    notes.push("J'ai raccourci chaque narration et réduit la durée des scènes.");
+    notes.push("I shortened each narration and reduced scene durations.");
   }
-  if (/plus long|développe|detaill|longer/.test(m)) {
+  if (/longer|expand|more detail|detailed/.test(m)) {
     scenes = scenes.map((s) => ({ ...s, seconds: Math.round(s.seconds * 1.25) }));
-    notes.push("J'ai allongé le temps laissé à chaque scène.");
+    notes.push("I gave each scene more time on screen.");
   }
-  if (/schéma|schema|dessin|diagram/.test(m)) {
+  if (/diagram|schema|draw|illustration/.test(m)) {
     let changed = 0;
     scenes = scenes.map((s) => {
-      if (changed < 2 && (s.kind === "explication" || s.kind === "animation")) {
+      if (changed < 2 && (s.kind === "explanation" || s.kind === "animation")) {
         changed++;
-        return { ...s, kind: "schema" as const, visual: `Schéma fléché : ${s.keywords.slice(0, 3).join(" → ") || "étapes clés"}.`, motion: "draw" as const };
+        return { ...s, kind: "diagram" as const, visual: `Flow diagram: ${s.keywords.slice(0, 3).join(" → ") || "key steps"}.`, motion: "draw" as const };
       }
       return s;
     });
-    notes.push(`J'ai transformé ${changed} scène(s) en schéma animé.`);
+    notes.push(`I turned ${changed} scene(s) into animated diagrams.`);
   }
-  if (/voix plus lente|plus lent|ralenti|slower/.test(m)) {
+  if (/slower|slow down/.test(m)) {
     scenes = scenes.map((s) => ({ ...s, seconds: Math.round(s.seconds * 1.2) }));
-    notes.push("J'ai ralenti le rythme de la voix off.");
+    notes.push("I slowed down the voiceover.");
   }
-  if (/voix plus rapide|plus vite|faster/.test(m)) {
+  if (/faster|speed up/.test(m)) {
     scenes = scenes.map((s) => ({ ...s, seconds: Math.max(8, Math.round(s.seconds * 0.85)) }));
-    notes.push("J'ai accéléré le rythme de la voix off.");
+    notes.push("I sped up the voiceover.");
   }
 
-  const replace = message.match(/remplace\s+"?([^"]+)"?\s+par\s+"?([^"]+)"?/i);
+  const replace = message.match(/replace\s+"?([^"]+)"?\s+(?:with|by)\s+"?([^"]+)"?/i);
   if (replace) {
     const [, from, to] = replace;
     scenes = scenes.map((s) => ({ ...s, narration: s.narration.replace(new RegExp(from, "gi"), to) }));
-    notes.push(`J'ai remplacé « ${from} » par « ${to} » dans les narrations.`);
+    notes.push(`I replaced "${from}" with "${to}" in the narration.`);
   }
 
-  const removal = message.match(/(?:supprime|retire|enlève)\s+(?:la\s+)?scène\s+(\d+|s\d+)/i);
+  const removal = message.match(/(?:remove|delete|drop)\s+(?:scene\s+)?(\d+|s\d+)/i);
   if (removal && scenes.length > 3) {
     const token = removal[1];
     const index = /^\d+$/.test(token) ? Number(token) - 1 : scenes.findIndex((s) => s.id === token);
     if (index >= 0 && index < scenes.length) {
       scenes = scenes.filter((_, i) => i !== index);
-      notes.push("J'ai supprimé la scène demandée.");
+      notes.push("I removed the requested scene.");
     }
   }
 
-  if (/ajoute|ajouter/.test(m) && scenes.length < 11) {
-    const last = scenes[scenes.length - 1];
+  if (/add/.test(m) && scenes.length < 11) {
     scenes.push({
       id: `s${Date.now().toString(36).slice(-5)}`,
-      title: "Pour aller plus loin",
-      kind: "synthese",
-      narration: `Pour retenir l'essentiel, reviens sur les idées clés : ${storyboard.concepts.slice(0, 4).join(", ")}.`,
-      visual: "Récapitulatif des idées clés sous forme de liste animée.",
+      title: "Going further",
+      kind: "summary",
+      narration: `To remember the essentials, review the key ideas: ${storyboard.concepts.slice(0, 4).join(", ")}.`,
+      visual: "An animated list of the key takeaways.",
       keywords: storyboard.concepts.slice(0, 4),
       motion: "appear",
       seconds: 18,
     });
-    notes.push("J'ai ajouté une scène de synthèse.");
+    notes.push("I added a summary scene.");
   }
 
   if (!notes.length) {
     scenes = scenes.map((s) => ({ ...s, narration: shorten(s.narration) }));
-    notes.push("J'ai pris en compte ta demande et resserré les narrations concernées.");
+    notes.push("I applied your request and tightened the relevant narration.");
   }
 
   const touchedSceneIds = scenes

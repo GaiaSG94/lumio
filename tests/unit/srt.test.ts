@@ -3,10 +3,10 @@ import { DEMO_STORYBOARD } from "@/lib/demo-storyboard";
 import { buildCues, buildSrt, buildVtt, splitNarration } from "@/lib/srt";
 import { formatClock, formatSrtTime, withTiming } from "@/lib/time";
 
-describe("génération des sous-titres", () => {
+describe("subtitle generation", () => {
   const srt = buildSrt(DEMO_STORYBOARD.scenes);
 
-  it("produit des cues numérotés et chronologiques", () => {
+  it("produces numbered, chronological cues", () => {
     const cues = buildCues(DEMO_STORYBOARD.scenes);
     expect(cues.length).toBeGreaterThan(DEMO_STORYBOARD.scenes.length);
     expect(cues[0].index).toBe(1);
@@ -14,20 +14,20 @@ describe("génération des sous-titres", () => {
     expect(cues.at(-1)!.end).toBe(180);
   });
 
-  it("respecte le format SRT", () => {
+  it("respects the SRT format", () => {
     expect(srt).toContain("1\n00:00:00,000 --> ");
     expect(srt).toMatch(/\d\d:\d\d:\d\d,\d{3}/);
   });
 
-  it("produit un VTT avec son en-tête", () => {
+  it("produces a VTT with its header", () => {
     expect(buildVtt(DEMO_STORYBOARD.scenes).startsWith("WEBVTT\n\n")).toBe(true);
   });
 
-  it("découpe une narration en morceaux lisibles", () => {
-    expect(splitNarration("Première phrase. Deuxième phrase un peu plus longue.", 4).length).toBeGreaterThan(1);
+  it("splits narration into readable chunks", () => {
+    expect(splitNarration("First sentence. Second sentence that is a bit longer.", 4).length).toBeGreaterThan(1);
   });
 
-  it("formate les horodatages", () => {
+  it("formats timestamps", () => {
     expect(formatSrtTime(75.25)).toBe("00:01:15,250");
     expect(formatClock(125)).toBe("2:05");
     const timed = withTiming(DEMO_STORYBOARD.scenes);

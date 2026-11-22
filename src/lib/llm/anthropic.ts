@@ -27,7 +27,7 @@ async function ask(system: string, payload: unknown, apiKey: string, model: stri
   const data = (await response.json()) as { content?: { type: string; text?: string; input?: unknown }[] };
   const block = data.content?.find((c) => c.type === "tool_use");
   const text = block?.input ?? data.content?.find((c) => c.type === "text")?.text;
-  if (!text) throw new Error("Réponse LLM vide");
+  if (!text) throw new Error("Empty LLM response");
   return parseLlmJson(text);
 }
 
@@ -35,24 +35,24 @@ export const anthropicLlm: LlmProvider = {
   name: "anthropic",
   async generate(input: GenerateInput): Promise<Storyboard> {
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
+    if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
     const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
     for (let attempt = 0; attempt < 2; attempt++) {
       const raw = await ask(storyboardInstructions(), { ...input, level: input.level, targetSeconds: input.targetSeconds }, apiKey, model);
       const parsed = storyboardSchema.safeParse(raw);
       if (parsed.success) return parsed.data;
     }
-    throw new Error("Le LLM n'a pas produit un storyboard valide");
+    throw new Error("The LLM did not produce a valid storyboard");
   },
   async patch(input: PatchInput): Promise<StoryboardPatch> {
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
+    if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
     const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
     for (let attempt = 0; attempt < 2; attempt++) {
       const raw = await ask(patchInstructions(), input, apiKey, model);
       const parsed = storyboardPatchSchema.safeParse(raw);
       if (parsed.success) return parsed.data;
     }
-    throw new Error("Le LLM n'a pas produit un patch valide");
+    throw new Error("The LLM did not produce a valid patch");
   },
 };

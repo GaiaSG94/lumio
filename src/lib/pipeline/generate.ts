@@ -7,15 +7,15 @@ import { STEP_ORDER } from "../types";
 import type { Storyboard } from "../schema";
 
 function makeJob(step: StepName, states: Partial<Record<StepName, StepState>>, progress: number, active: boolean): GenerationJob {
-  const all = Object.fromEntries(STEP_ORDER.map((s) => [s, "attente"])) as Record<StepName, StepState>;
+  const all = Object.fromEntries(STEP_ORDER.map((s) => [s, "pending"])) as Record<StepName, StepState>;
   for (const [key, value] of Object.entries(states)) all[key as StepName] = value;
   return { active, step, steps: all, progress };
 }
 
 function advance(step: StepName, next: StepName, done: StepName[], progress: number): GenerationJob {
-  const states = Object.fromEntries(done.map((s) => [s, "fait"])) as Record<StepName, StepState>;
-  states[step] = "fait";
-  states[next] = "encours";
+  const states = Object.fromEntries(done.map((s) => [s, "done"])) as Record<StepName, StepState>;
+  states[step] = "done";
+  states[next] = "running";
   return makeJob(next, states, progress, true);
 }
 
@@ -53,8 +53,8 @@ export async function runGeneration(projectId: string): Promise<void> {
 
   await store.update(projectId, (p) => ({
     ...p,
-    status: "generation",
-    job: makeJob("script", { script: "encours" }, 8, true),
+    status: "generating",
+    job: makeJob("script", { script: "running" }, 8, true),
   }));
 
   try {
@@ -74,11 +74,11 @@ export async function runGeneration(projectId: string): Promise<void> {
           version: 1,
           storyboard,
           createdAt: new Date().toISOString(),
-          note: "Génération initiale",
+          note: "Initial generation",
           touchedSceneIds: storyboard.scenes.map((s) => s.id),
         },
       ],
-      job: advance("script", "voix", ["script"], 28),
+      job: advance("script", "voice", ["script"], 28),
     }));
 
     const { audio, durations, scenes } = await synthesize(storyboard, projectId);
@@ -87,31 +87,31 @@ export async function runGeneration(projectId: string): Promise<void> {
     await store.update(projectId, (p) => ({
       ...p,
       versions: p.versions.map((v) => (v.version === 1 ? { ...v, storyboard: voiced } : v)),
-      job: advance("voix", "visuels", ["script", "voix"], 55),
+      job: advance("voice", "visuals", ["script", "voice"], 55),
     }));
 
     await store.update(projectId, (p) => ({
       ...p,
-      job: advance("visuels", "montage", ["script", "voix", "visuels"], 72),
+      job: advance("visuals", "rendering", ["script", "voice", "visuals"], 72),
     }));
 
     await store.update(projectId, (p) => ({
       ...p,
-      job: advance("montage", "soustitres", ["script", "voix", "visuels", "montage"], 88),
+      job: advance("rendering", "subtitles", ["script", "voice", "visuals", "rendering"], 88),
     }));
 
     await store.update(projectId, (p) => ({
       ...p,
       assets: buildAssets(voiced, audio, durations),
-      status: "pret",
+      status: "ready",
       updatedAt: new Date().toISOString(),
-      job: makeJob("soustitres", Object.fromEntries(STEP_ORDER.map((s) => [s, "fait"])), 100, false),
+      job: makeJob("subtitles", Object.fromEntries(STEP_ORDER.map((s) => [s, "done"])), 100, false),
     }));
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erreur inconnue";
+    const message = error instanceof Error ? error.message : "Unknown error";
     await store.update(projectId, (p) => ({
       ...p,
-      status: "erreur",
+      status: "error",
       job: { ...p.job, active: false, error: message },
     }));
   }

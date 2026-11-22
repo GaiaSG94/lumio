@@ -8,7 +8,7 @@ const DEFAULT_MODEL = "combo/cheap";
 
 function config() {
   const apiKey = process.env.INFERHUB_API_KEY || process.env.ENV_USER_INFERHUB_API_KEY;
-  if (!apiKey) throw new Error("INFERHUB_API_KEY manquante");
+  if (!apiKey) throw new Error("Missing INFERHUB_API_KEY");
   return {
     apiKey,
     baseUrl: (process.env.LLM_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, ""),
@@ -36,10 +36,10 @@ async function ask(system: string, payload: unknown): Promise<unknown> {
       ],
     }),
   });
-  if (!response.ok) throw new Error(`Routeur LLM HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`LLM router HTTP ${response.status}`);
   const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
   const text = data.choices?.[0]?.message?.content;
-  if (!text) throw new Error("Réponse LLM vide");
+  if (!text) throw new Error("Empty LLM response");
   return parseLlmJson(text);
 }
 
@@ -50,13 +50,13 @@ export const gatewayLlm: LlmProvider = {
       const parsed = storyboardSchema.safeParse(await ask(storyboardInstructions(), input));
       if (parsed.success) return parsed.data;
     }
-    throw new Error("Le routeur n'a pas produit un storyboard valide");
+    throw new Error("The router did not produce a valid storyboard");
   },
   async patch(input: PatchInput): Promise<StoryboardPatch> {
     for (let attempt = 0; attempt < 2; attempt++) {
       const parsed = storyboardPatchSchema.safeParse(await ask(patchInstructions(), input));
       if (parsed.success) return parsed.data;
     }
-    throw new Error("Le routeur n'a pas produit un patch valide");
+    throw new Error("The router did not produce a valid patch");
   },
 };

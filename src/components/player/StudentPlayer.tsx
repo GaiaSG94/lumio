@@ -12,17 +12,17 @@ import { cn } from "@/lib/cn";
 import { newId } from "@/lib/ids";
 import type { Project } from "@/lib/types";
 
-type Tab = "chapitres" | "transcription" | "notes";
+type Tab = "chapters" | "transcript" | "notes";
 
 const TABS: { id: Tab; label: string; icon: typeof ListChecks }[] = [
-  { id: "chapitres", label: "Chapitres", icon: ListChecks },
-  { id: "transcription", label: "Transcription", icon: ScrollText },
-  { id: "notes", label: "Mes notes", icon: NotebookPen },
+  { id: "chapters", label: "Chapters", icon: ListChecks },
+  { id: "transcript", label: "Transcript", icon: ScrollText },
+  { id: "notes", label: "My notes", icon: NotebookPen },
 ];
 
 export function StudentPlayer({ slug, initialTime = 0 }: { slug: string; initialTime?: number }) {
   const [project, setProject] = useState<Project | null>(null);
-  const [tab, setTab] = useState<Tab>("chapitres");
+  const [tab, setTab] = useState<Tab>("chapters");
   const [notes, setNotes] = useState<Note[]>([]);
   const [error, setError] = useState("");
   const storyboard = project?.versions.at(-1)?.storyboard ?? null;
@@ -35,9 +35,9 @@ export function StudentPlayer({ slug, initialTime = 0 }: { slug: string; initial
         const response = await fetch(`/api/v/${slug}`, { cache: "no-store" });
         const data = (await response.json()) as { project?: Project; error?: string };
         if (data.project) setProject(data.project);
-        else setError(data.error ?? "Vidéo introuvable");
+        else setError(data.error ?? "Video not found");
       } catch {
-        setError("Impossible de charger la vidéo");
+        setError("Could not load the video");
       }
     })();
   }, [slug]);
@@ -46,29 +46,29 @@ export function StudentPlayer({ slug, initialTime = 0 }: { slug: string; initial
     try {
       const raw = window.localStorage.getItem(`lumio-notes-${slug}`);
       if (raw) setNotes(JSON.parse(raw) as Note[]);
-    } catch { /* stockage indisponible */ }
+    } catch {}
   }, [slug]);
 
   function saveNotes(next: Note[]) {
     setNotes(next);
-    try { window.localStorage.setItem(`lumio-notes-${slug}`, JSON.stringify(next)); } catch { /* stockage indisponible */ }
+    try { window.localStorage.setItem(`lumio-notes-${slug}`, JSON.stringify(next)); } catch {}
   }
 
-  if (error) return <main className="grid min-h-screen place-items-center p-6 text-center"><div><h1 className="font-titre text-2xl font-bold">Vidéo introuvable</h1><p className="mt-2 text-encre-2">{error}</p></div></main>;
-  if (!project || !storyboard) return <main className="grid min-h-screen place-items-center"><p className="animate-pulse text-encre-2">Chargement…</p></main>;
+  if (error) return <main className="grid min-h-screen place-items-center p-6 text-center"><div><h1 className="font-title text-2xl font-bold">Video not found</h1><p className="mt-2 text-ink-2">{error}</p></div></main>;
+  if (!project || !storyboard) return <main className="grid min-h-screen place-items-center"><p className="animate-pulse text-ink-2">Loading…</p></main>;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-[520px] px-4 pb-10">
       <header className="flex items-center justify-between py-4">
         <Logo />
-        <span className="pastille text-xs">Leçon</span>
+        <span className="pastille text-xs">Lesson</span>
       </header>
 
-      <h1 className="font-titre text-2xl font-bold leading-tight">{storyboard.title}</h1>
+      <h1 className="font-title text-2xl font-bold leading-tight">{storyboard.title}</h1>
       <div className="mt-2 flex flex-wrap gap-2">
         <span className="pastille text-xs">{Math.round(total / 60)} min</span>
-        <span className="pastille text-xs">{storyboard.scenes.length} chapitres</span>
-        <span className="pastille border-succes bg-succes-fond text-xs text-succes">Quiz à faire</span>
+        <span className="pastille text-xs">{storyboard.scenes.length} chapters</span>
+        <span className="pastille border-success bg-success-bg text-xs text-success">Quiz to do</span>
       </div>
 
       <div className="mt-4">
@@ -76,17 +76,17 @@ export function StudentPlayer({ slug, initialTime = 0 }: { slug: string; initial
         <PlayerControls storyboard={storyboard} time={playback.time} playing={playback.playing} onToggle={playback.toggle} onSeek={playback.seek} />
       </div>
 
-      <nav className="mt-6 flex gap-1 border-b border-violet-100" aria-label="Onglets de la leçon">
+      <nav className="mt-6 flex gap-1 border-b border-violet-100" aria-label="Lesson tabs">
         {TABS.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" onClick={() => setTab(id)} aria-current={tab === id ? "page" : undefined} className={cn("flex min-h-11 flex-1 items-center justify-center gap-1.5 border-b-2 px-1 text-xs font-semibold sm:text-sm", tab === id ? "border-violet-600 text-violet-700" : "border-transparent text-encre-2")}>
+          <button key={id} type="button" onClick={() => setTab(id)} aria-current={tab === id ? "page" : undefined} className={cn("flex min-h-11 flex-1 items-center justify-center gap-1.5 border-b-2 px-1 text-xs font-semibold sm:text-sm", tab === id ? "border-violet-600 text-violet-700" : "border-transparent text-ink-2")}>
             <Icon size={15} aria-hidden="true" /> {label}
           </button>
         ))}
       </nav>
 
       <div className="mt-4">
-        {tab === "chapitres" ? <ChaptersPanel storyboard={storyboard} time={playback.time} onSeek={playback.seek} /> : null}
-        {tab === "transcription" ? <TranscriptPanel storyboard={storyboard} time={playback.time} onSeek={playback.seek} /> : null}
+        {tab === "chapters" ? <ChaptersPanel storyboard={storyboard} time={playback.time} onSeek={playback.seek} /> : null}
+        {tab === "transcript" ? <TranscriptPanel storyboard={storyboard} time={playback.time} onSeek={playback.seek} /> : null}
         {tab === "notes" ? (
           <NotesPanel
             notes={notes}
@@ -98,8 +98,8 @@ export function StudentPlayer({ slug, initialTime = 0 }: { slug: string; initial
         ) : null}
       </div>
 
-      <Link href={`/v/${slug}/quiz?t=${Math.floor(playback.time)}`} className="btn-primaire sticky bottom-4 mt-8 w-full shadow-flottante" data-testid="lien-quiz">
-        Passer le quiz · {storyboard.quiz.length} questions
+      <Link href={`/v/${slug}/quiz?t=${Math.floor(playback.time)}`} className="btn-primary sticky bottom-4 mt-8 w-full shadow-floating" data-testid="quiz-link">
+        Take the quiz · {storyboard.quiz.length} questions
       </Link>
     </main>
   );

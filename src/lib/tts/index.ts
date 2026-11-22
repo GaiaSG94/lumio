@@ -43,7 +43,7 @@ export const elevenLabsTts: TtsProvider = {
   name: "elevenlabs",
   async speak(input: SpeakInput): Promise<SpeakResult> {
     const keys = elevenLabsKeys();
-    if (!keys.length) throw new Error("Clé ElevenLabs manquante");
+    if (!keys.length) throw new Error("Missing ElevenLabs API key");
     let lastError: unknown;
     for (const key of keys) {
       try {
@@ -52,7 +52,7 @@ export const elevenLabsTts: TtsProvider = {
         lastError = error;
       }
     }
-    throw lastError instanceof Error ? lastError : new Error("Échec ElevenLabs");
+    throw lastError instanceof Error ? lastError : new Error("ElevenLabs request failed");
   },
 };
 

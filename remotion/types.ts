@@ -1,7 +1,7 @@
 export type LumioScene = {
   id: string;
   title: string;
-  kind: "accroche" | "explication" | "schema" | "animation" | "synthese" | "quiz";
+  kind: "hook" | "explanation" | "diagram" | "animation" | "summary" | "quiz";
   narration: string;
   visual: string;
   keywords: string[];

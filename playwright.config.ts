@@ -15,6 +15,15 @@ export default defineConfig({
   webServer: {
     command: "npm run dev -- -p 3100",
     url: "http://127.0.0.1:3100",
+    env: {
+      ANTHROPIC_API_KEY: "",
+      INFERHUB_API_KEY: "",
+      ENV_USER_INFERHUB_API_KEY: "",
+      TTS_API_KEY: "",
+      SCAN_ELEVENLABS_1: "",
+      SCAN_ELEVENLABS_2: "",
+      TTS_PROVIDER: "local",
+    },
     reuseExistingServer: true,
     timeout: 120_000,
   },

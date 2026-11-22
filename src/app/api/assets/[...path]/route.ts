@@ -16,10 +16,10 @@ const TYPES: Record<string, string> = {
 export async function GET(_request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const { path: parts } = await params;
   const safe = parts.filter((p) => p !== ".." && p !== ".");
-  if (safe.length !== parts.length) return NextResponse.json({ error: "Chemin invalide" }, { status: 400 });
+  if (safe.length !== parts.length) return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   const target = path.resolve(assetPath(...safe));
   if (!target.startsWith(path.resolve(assetPath()))) {
-    return NextResponse.json({ error: "Chemin invalide" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }
   try {
     const content = await fs.readFile(target);
@@ -31,6 +31,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pat
       },
     });
   } catch {
-    return NextResponse.json({ error: "Fichier introuvable" }, { status: 404 });
+    return NextResponse.json({ error: "File not found" }, { status: 404 });
   }
 }

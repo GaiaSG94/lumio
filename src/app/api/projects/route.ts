@@ -14,17 +14,17 @@ export async function POST(request: Request) {
   const body = (await request.json()) as Partial<CreateProjectInput>;
   const sourceText = (body.sourceText ?? "").trim();
   if (sourceText.length < 10) {
-    return NextResponse.json({ error: "Colle au moins quelques mots de cours." }, { status: 400 });
+    return NextResponse.json({ error: "Paste at least a few words of lesson content." }, { status: 400 });
   }
   const now = new Date().toISOString();
   const project: Project = {
     id: newId("p-"),
     slug: `${slugify(sourceText)}-${newId().slice(0, 4)}`,
     sourceText,
-    level: body.level ?? "college",
+    level: body.level ?? "middle",
     targetSeconds: Math.min(600, Math.max(60, body.targetSeconds ?? 180)),
-    title: "Nouvelle leçon",
-    status: "generation",
+    title: "New lesson",
+    status: "generating",
     createdAt: now,
     updatedAt: now,
     versions: [],
@@ -32,16 +32,16 @@ export async function POST(request: Request) {
       {
         id: newId("m-"),
         role: "lumio",
-        content: "Je lis ton cours et je prépare le storyboard. C'est parti !",
+        content: "I'm reading your lesson and preparing the storyboard. Let's go!",
         createdAt: now,
-        steps: ["Lecture du texte", "Script", "Voix off", "Visuels", "Montage", "Sous-titres"],
+        steps: ["Reading the text", "Script", "Voiceover", "Visuals", "Rendering", "Subtitles"],
       },
     ],
     assets: null,
     job: {
       active: false,
       step: "script",
-      steps: { script: "attente", voix: "attente", visuels: "attente", montage: "attente", soustitres: "attente" },
+      steps: { script: "pending", voice: "pending", visuals: "pending", rendering: "pending", subtitles: "pending" },
       progress: 0,
     },
     quizResults: [],

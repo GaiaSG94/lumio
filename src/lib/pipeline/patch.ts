@@ -34,8 +34,8 @@ export function applyPatch(
   if (!quiz.length) {
     quiz = [
       {
-        question: `Quel est le sujet de « ${storyboard.title} » ?`,
-        choices: [...storyboard.concepts.slice(0, 3), "Aucune de ces réponses"],
+        question: `What is the subject of "${storyboard.title}"?`,
+        choices: [...storyboard.concepts.slice(0, 3), "None of these answers"],
         answerIndex: 0,
         explanation: storyboard.concepts[0],
         sceneId: scenes[0].id,

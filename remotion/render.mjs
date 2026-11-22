@@ -19,7 +19,7 @@ async function findBrowser() {
     try {
       await fs.access(candidate);
       return candidate;
-    } catch { /* candidat absent */ }
+    } catch { /* candidate missing */ }
   }
   return undefined;
 }
@@ -33,12 +33,12 @@ async function main() {
   const entryPoint = path.join(here, "index.ts");
   console.log("[lumio] bundle Remotion…");
   const serveUrl = await bundle({ entryPoint });
-  console.log("[lumio] sélection de la composition…");
+  console.log("[lumio] selecting composition…");
   const inputProps = { storyboard };
   const browserExecutable = await findBrowser();
   const browser = browserExecutable ? { browserExecutable } : {};
   const composition = await selectComposition({ serveUrl, id: "Lumio", inputProps, ...browser });
-  console.log(`[lumio] rendu de ${composition.durationInFrames} images…`);
+  console.log(`[lumio] rendering ${composition.durationInFrames} frames…`);
   await renderMedia({
     composition,
     serveUrl,
@@ -52,10 +52,10 @@ async function main() {
       if (percent % 20 === 0) console.log(`[lumio] ${percent} %`);
     },
   });
-  console.log("[lumio] terminé:", outputFile);
+  console.log("[lumio] done:", outputFile);
 }
 
 main().catch((error) => {
-  console.error("[lumio] échec du rendu:", error instanceof Error ? error.message : error);
+  console.error("[lumio] render failed:", error instanceof Error ? error.message : error);
   process.exit(1);
 });

@@ -40,22 +40,22 @@ textarea {
 }
 
 @layer components {
-  .surface-verre {
+  .surface-glass {
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(18px);
     border: 1px solid rgba(91, 46, 232, 0.18);
   }
 
-  .btn-primaire {
+  .btn-primary {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] bg-violet-600 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
-  .btn-secondaire {
+  .btn-secondary {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] border border-violet-100 bg-white px-4 py-2 font-semibold text-violet-700 transition-colors hover:bg-violet-100;
   }
 
   .pastille {
-    @apply inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-violet-100 bg-white px-3 text-sm font-medium text-encre-2;
+    @apply inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-violet-100 bg-white px-3 text-sm font-medium text-ink-2;
   }
 }
 

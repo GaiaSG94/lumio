@@ -10,5 +10,5 @@ export function slugify(input: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  return normalized.slice(0, 48) || "lecon";
+  return normalized.slice(0, 48) || "lesson";
 }

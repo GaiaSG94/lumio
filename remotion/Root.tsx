@@ -3,16 +3,16 @@ import { LumioVideo } from "./LumioVideo";
 import { FPS, type LumioStoryboard } from "./types";
 
 const DEMO: LumioStoryboard = {
-  title: "Une leçon en vidéo",
-  level: "college",
+  title: "A lesson in video",
+  level: "middle",
   targetSeconds: 90,
-  concepts: ["lumière", "eau"],
+  concepts: ["light", "water"],
   scenes: [
-    { id: "s1", title: "Introduction", kind: "accroche", narration: "Bienvenue dans cette leçon.", visual: "Titre", keywords: ["leçon"], motion: "appear", seconds: 30 },
-    { id: "s2", title: "Les idées clés", kind: "explication", narration: "Voici les idées essentielles.", visual: "Texte", keywords: ["idées"], motion: "draw", seconds: 30 },
-    { id: "s3", title: "À retenir", kind: "synthese", narration: "Retiens ces notions.", visual: "Récapitulatif", keywords: ["notions"], motion: "appear", seconds: 30 },
+    { id: "s1", title: "Introduction", kind: "hook", narration: "Welcome to this lesson.", visual: "Title", keywords: ["lesson"], motion: "appear", seconds: 30 },
+    { id: "s2", title: "Key ideas", kind: "explanation", narration: "Here are the essential ideas.", visual: "Text", keywords: ["ideas"], motion: "draw", seconds: 30 },
+    { id: "s3", title: "Key takeaways", kind: "summary", narration: "Remember these concepts.", visual: "Summary", keywords: ["concepts"], motion: "appear", seconds: 30 },
   ],
-  quiz: [{ question: "Question ?", choices: ["A", "B", "C", "D"], answerIndex: 0, explanation: "Réponse A.", sceneId: "s1" }],
+  quiz: [{ question: "Question?", choices: ["A", "B", "C", "D"], answerIndex: 0, explanation: "Answer A.", sceneId: "s1" }],
 };
 
 export const RemotionRoot = () => (

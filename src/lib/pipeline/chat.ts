@@ -28,7 +28,7 @@ export async function chatUpdate(projectId: string, message: string): Promise<Pr
   const now = new Date().toISOString();
   const labels = touchedSceneIds.map((id) => {
     const index = storyboard.scenes.findIndex((s) => s.id === id);
-    return `Scène ${index + 1} · ${storyboard.scenes[index]?.title ?? id}`;
+    return `Scene ${index + 1} · ${storyboard.scenes[index]?.title ?? id}`;
   });
 
   return store.update(projectId, (p) => ({
@@ -46,11 +46,11 @@ export async function chatUpdate(projectId: string, message: string): Promise<Pr
     ],
     messages: [
       ...p.messages,
-      { id: newId("u-"), role: "utilisateur", content: message, createdAt: now },
+      { id: newId("u-"), role: "user", content: message, createdAt: now },
       { id: newId("l-"), role: "lumio", content: patch.reply, createdAt: now, steps: labels },
     ],
     assets: buildAssets(storyboard, audio, durations),
-    status: "pret",
+    status: "ready",
     updatedAt: now,
   }));
 }

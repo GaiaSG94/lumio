@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-export const LEVELS = ["primaire", "college", "lycee", "adultes"] as const;
+export const LEVELS = ["primary", "middle", "high", "adults"] as const;
 export const SCENE_KINDS = [
-  "accroche",
-  "explication",
-  "schema",
+  "hook",
+  "explanation",
+  "diagram",
   "animation",
-  "synthese",
+  "summary",
   "quiz",
 ] as const;
 export const MOTIONS = ["zoom", "draw", "appear", "pan"] as const;
@@ -32,7 +32,7 @@ export const quizBaseSchema = z.object({
 
 export const quizQuestionSchema = quizBaseSchema
   .refine((q) => q.answerIndex < q.choices.length, {
-    message: "answerIndex doit designer une reponse existante",
+    message: "answerIndex must point to an existing choice",
     path: ["answerIndex"],
   });
 
@@ -48,19 +48,19 @@ export const storyboardSchema = z
   .superRefine((sb, ctx) => {
     const ids = new Set(sb.scenes.map((s) => s.id));
     if (ids.size !== sb.scenes.length) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Identifiants de scènes dupliqués", path: ["scenes"] });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate scene IDs", path: ["scenes"] });
     }
     const total = sb.scenes.reduce((sum, s) => sum + s.seconds, 0);
     if (Math.abs(total - sb.targetSeconds) > Math.max(12, sb.targetSeconds * 0.12)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `La somme des durées (${total}s) doit approcher ${sb.targetSeconds}s`,
+        message: `The sum of scene durations (${total}s) must be close to ${sb.targetSeconds}s`,
         path: ["scenes"],
       });
     }
     for (const q of sb.quiz) {
       if (!ids.has(q.sceneId)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `sceneId inconnu: ${q.sceneId}`, path: ["quiz"] });
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Unknown sceneId: ${q.sceneId}`, path: ["quiz"] });
       }
     }
   });

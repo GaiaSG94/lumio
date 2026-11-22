@@ -6,6 +6,6 @@ export const runtime = "nodejs";
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const project = await store.getBySlug(slug);
-  if (!project) return NextResponse.json({ error: "Vidéo introuvable" }, { status: 404 });
+  if (!project) return NextResponse.json({ error: "Video not found" }, { status: 404 });
   return NextResponse.json({ project });
 }
